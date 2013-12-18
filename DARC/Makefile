@@ -6,7 +6,7 @@
 #	relevant executables
 
 # set the fortran compiler to be employed
-FF='g95'
+FF=g95
 
 all: $(patsubst %.f, %.x, $(wildcard *.f))
 
