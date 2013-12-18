@@ -6,7 +6,7 @@
 #	relevant executables
 
 # set the fortran compiler to be employed
-FF=g95
+FF=f95 -O2  -xtarget=native -m64 -xarch=sse4_2 -xmodel=medium -xlic_lib=sunperf
 
 all: $(patsubst %.f, %.x, $(wildcard *.f))
 
