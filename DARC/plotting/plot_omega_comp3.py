@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 '''
-@name: plot_omega_comp.py
+@name: plot_omega_comp3.py
 @author: Matt
-@date: Feb 5, 2014
+@date: 25 March, 2014
 @version: 1.0
 @description: A python script for plotting the effective collision strengths for 
     transitions from different calculations on the same graph.
@@ -57,13 +57,14 @@ def main(argv):
     ax.set_ylabel("$\Omega$, Collision Strength")
     ax.set_xlabel("Scattered Energy, $E$ (Ryd)")
     ax.set_yscale("log")
-    ax.set_ylim((5e-3,2))
+    ax.set_ylim((1e-4,2))
     ax.set_xlim((0,450))
     ax.set_title(title)
     #ax.legend(('DARC (serial, MXE=6601)', 'DARC (parallel, MXE=54401)'), loc='upper right', prop={'size':10})
     #ax.legend(('DARC', 'BP ICFT'), loc='upper right', prop={'size':10})
     ax.legend(('BP ICFT $\Omega$', 'BP ICFT $\\Upsilon$','AUTOS DW $\\Upsilon$'), loc='upper right', prop={'size':10})
     if save:
+        fig.set_size_inches(11.89,8.27)
         plt.savefig(outfile)
     else:
         plt.show()
