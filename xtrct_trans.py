@@ -20,13 +20,14 @@ def main(argv):
     Input/Usage: [om, ups] [source_calculation_descrip] [pairs of numbers
     representing the levels for the desired transitions]
     '''
+    AS = True
     if not(argv[0] == 'om' or argv[0] == 'ups'):
         raise Exception("Sorry, first argument must be 'om' or 'ups' to "
                         "specify the physical quantity of interest.")
     elif len(argv) < 4:
         raise Exception("Insufficient number of arguments.")
     else:
-        type = argv[0]
+        typ = argv[0]
         desc = argv[1]
         x = argv[2:]
         if len(x) % 2 is not 0:
@@ -34,9 +35,9 @@ def main(argv):
                             " This needs to be even silly.")
         trans = [x[(2 * i): (2 * i + 2)] for i in range(int(len(x) / 2))]
         print(trans)
-        if type == 'om':
-            if os.path.isfile('OMEGA') == False:
-                raise Exception('No OMEGA file in current directory.')
+        if typ == 'om' and not(AS):
+            if not(os.path.isfile('OMEGA')) and not(os.path.isfile('OMEGAU')):
+                raise Exception('No OMEGA/U file in current directory.')
             for i in trans:
                 try:
                     [int(a) for a in i]
@@ -66,11 +67,22 @@ def main(argv):
                     raise
                 with open('tmp', 'w') as file:
                     file.write(i[0] + ' ' + i[1])
-                sp.check_call('xtrctups.x < tmp', shell=True)
-                # T0-DO: make a function for the file name formatting
-                sp.check_call(['mv', 'upsout', 'ups-' + i[0] + '_' + i[1] +\
-                               '-' + desc + '-' + dt.date.today().isoformat().\
-                               replace('-', '_') + '.trns'])
+                if AS:
+                    sp.check_call('xtrct_adf04.x < tmp', shell=True)
+                    #T0-DO: make a function for the file name formatting
+                    if typ == 'ups':
+                        sp.check_call(['mv', 'x4out', 'ups-' + i[0] + '_' + i[1] +\
+                                       '-' + desc + '-' + dt.date.today().isoformat().\
+                                       replace('-', '_') + '.trns'])
+                    else:
+                        sp.check_call(['mv', 'x4out', 'om-' + i[0] + '_' + i[1] +\
+                                       '-' + desc + '-' + dt.date.today().isoformat().\
+                                       replace('-', '_') + '.trns'])
+                else:
+                    sp.check_call('xtrctups.x < tmp', shell=True)
+                    sp.check_call(['mv', 'upsout', 'ups-' + i[0] + '_' + i[1] +\
+                                   '-' + desc + '-' + dt.date.today().isoformat().\
+                                   replace('-', '_') + '.trns'])
                 print("Done transition ", i[0], ' --> ', i[1])
                 print("-------------------")
 
