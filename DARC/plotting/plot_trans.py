@@ -49,6 +49,10 @@ def main(argv):
                         default=False, help='flag to save output to file and '
                         'argument is used as description of output file '
                         '(mandatory)')
+    parser.add_argument('-l', '--location', nargs=1, type=str,
+                        default='upper left', help='argument specifies the '
+                        'location for the legend in the generated graph. The '
+                        'default is "upper left"')
     parser.add_argument('--logx', action='store_true', default=False,
                         help='flag to turn on log scaling of the x-axis')
     parser.add_argument('--logy', action='store_true', default=False,
@@ -103,6 +107,7 @@ def main(argv):
                 files = glob.glob('ups-' + i[0] + '_' + i[1] + '-*' + '.trns')
             else:
                 files = glob.glob('om-' + i[0] + '_' + i[1] + '-*' + '.trns')
+        files.sort()
         print('Processing transition ', i)
         print('Files:')
         print(files)
@@ -199,7 +204,7 @@ def main(argv):
                 ax.set_ylabel("$\Omega$, Collision Strength")
                 ax.set_xlabel("$E$, Scattering Energy (Ryd)")
         ax.set_title(title)
-        ax.legend(legend, loc='upper left', prop={'size':10})
+        ax.legend(legend, loc=args.location, prop={'size':10})
         fig.set_size_inches(11.89, 8.27)
     if save:
         for i in plt.get_fignums():
