@@ -57,6 +57,11 @@ def main(argv):
                         help='flag to turn on log scaling of the x-axis')
     parser.add_argument('--logy', action='store_true', default=False,
                         help='flag to turn on log scaling of the y-axis')
+    parser.add_argument('-c', '--conv', nargs='?', type=float, default=False,
+                        const=2.205, help='flag to switch on convolution of the'
+                        ' input data with a normalized Gaussian. The optional '
+                        'argument specifies the scaling parameter (Ryd) in the deno-'
+                        'minator of the exponent (default 2.205 Ryd).')
 
     args = parser.parse_args(argv)
     #print(args)
@@ -166,7 +171,31 @@ def main(argv):
                 miny = min(miny, np.min(y1))
             ## Create the desired uncertainty region
             #err = 0.1 * y2
-            ax.plot(x1, y1, clr[count - 1] + sty[count - 1])
+            if args.conv != False:
+                # for convolution, omega values should start at E=0, so the 
+                # below pads the loaded data with zeros
+                incr = x1[2] - x1[1]
+                # FWHM = 2 * math.sqrt(2*math.log(2)) * stdev
+                sdev = args.conv / 2.3548200450309493 
+                num = math.floor(x1[1] / incr)
+                xadd = np.linspace(0, x1[1], num, endpoint=False)
+                pad = np.zeros(num)
+                xc1 = np.append(xadd, x1[1:])
+                yc = np.append(pad, y1[1:])
+                numc = 6 * math.floor(sdev / incr) + 1
+                xc2 = np.linspace(-3 * sdev, 3 * sdev, numc)
+                g = np.exp(-1 * xc2**2 / (2 * sdev**2))
+                g = g / g.sum()
+                #ax.plot(x1, g, clr[count - 1] + sty[count - 1])
+                c = np.convolve(yc, g, mode='same')
+                ax.plot(xc1, c, clr[count - 1] + sty[count - 1])
+                out = np.column_stack((xc1, c))
+                np.savetxt(typ + '-' + i[0] + '_' + i[1] + '-' + 'CONV' + '_' 
+                        + desc, out) 
+            elif typ == 'om':
+                ax.plot(x1, y1, clr[count - 1] + sty[count - 1], alpha=0.3)
+            else:
+                ax.plot(x1, y1, clr[count - 1] + sty[count - 1])
             if count % 5 == 0:
                 count = 1
             else:
