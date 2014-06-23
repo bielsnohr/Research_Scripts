@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 @name: plot_trans.py
-@author: Matt
+@author: MMB
 @date: 2014-04-30
 @version: 1.1
 @description: A python script for plotting the (effective) collision strengths
@@ -62,6 +62,13 @@ def main(argv):
                         ' input data with a normalized Gaussian. The optional '
                         'argument specifies the scaling parameter (Ryd) in the deno-'
                         'minator of the exponent (default 2.205 Ryd).')
+    parser.add_argument('-x', '--xsec', nargs='?', type=int, default=False,
+                        const=1, help='flag to switch on conversion of omega'
+                        ' values to cross-sections. The optional argument '
+                        'specifies the statistical weight of the initial level '
+                        '(default 1). This statistical weight will be used for'
+                        ' all transitions, so operation is probably limited to '
+                        'plotting one transition.')
 
     args = parser.parse_args(argv)
     #print(args)
@@ -77,6 +84,11 @@ def main(argv):
             '^3\!P_0^{\circ}', '6':'3d^{10}\!4s\!4p \ \ ^1\!P_1^{\circ} / \ '\
             '^3\!P_1^{\circ}', '5':'3d^{10}\!4s^2 \ \ ^3\!P_0',\
             '8':'3d^{10}\!4p^2 \ \ ^1\!D_2'}
+
+    # Physical Constants
+    a_0 = 0.52917721092e-8 #Bohr radius in cm
+    pia2 = math.pi * a_0**2 # pi * a_0^2
+
     LOGY = args.logy
     LOGX = args.logx
     typ = args.t[0]
@@ -171,6 +183,9 @@ def main(argv):
                 miny = min(miny, np.min(y1))
             ## Create the desired uncertainty region
             #err = 0.1 * y2
+            #
+            if args.xsec != False: # convert the collision strengths to x-secs
+                y1 = pia2 * y1 / (args.xsec * x1)
             if args.conv != False:
                 # for convolution, omega values should start at E=0, so the 
                 # below pads the loaded data with zeros
@@ -230,7 +245,10 @@ def main(argv):
                               "Strength")
                 ax.set_xlabel("$E_r$, Reduced Scattering Energy")
             else:
-                ax.set_ylabel("$\Omega$, Collision Strength")
+                if args.xsec != False:
+                    ax.set_ylabel("$\sigma$, Cross Section")
+                else:
+                    ax.set_ylabel("$\Omega$, Collision Strength")
                 ax.set_xlabel("$E$, Scattering Energy (Ryd)")
         ax.set_title(title)
         ax.legend(legend, loc=args.location, prop={'size':10})
